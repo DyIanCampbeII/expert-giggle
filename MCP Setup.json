@@ -1,0 +1,1296 @@
+{
+  "name": "MCP Setup",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "any_event"
+        ],
+        "watchWorkspace": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1200,
+        780
+      ],
+      "id": "bb62ed90-427a-47ac-9688-d5673c22ba1e",
+      "name": "Slack Trigger",
+      "webhookId": "d791d757-25e1-43da-ba68-769a7bddafcb",
+      "credentials": {
+        "slackApi": {
+          "id": "r3higGvXtRLPYv5p",
+          "name": "Slack account 16"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Student Profile Compiler",
+        "height": 400,
+        "width": 1760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        640
+      ],
+      "id": "53842abd-7d41-4727-a715-0dd231d6dd68",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Course Performance",
+        "height": 400,
+        "width": 1760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        1060
+      ],
+      "id": "4a305ff0-2945-4a66-95c7-0c1bd75b8528",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Student History",
+        "height": 400,
+        "width": 1760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        1880
+      ],
+      "id": "50fae794-b6bb-4134-877f-7ee08300af9a",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Study Analysis",
+        "height": 400,
+        "width": 1760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        2300
+      ],
+      "id": "4a34a954-8277-4ae4-968d-ab20b7346e3c",
+      "name": "Sticky Note3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Store Responses\n",
+        "height": 400,
+        "width": 1760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        2720
+      ],
+      "id": "d23dda7e-5a76-43f1-9cdf-7da9c47916d4",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Exam Blueprints\n",
+        "height": 380,
+        "width": 1760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        1480
+      ],
+      "id": "0d56c29d-eb6a-4d92-8742-c18e6159d450",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bb360e6a-c2a8-4661-a30d-3266fb4af7dc",
+              "leftValue": "={{$json[\"channel_type\"]}}",
+              "rightValue": "im",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1000,
+        780
+      ],
+      "id": "b7431a45-6138-4a1c-8daf-98a6025a5bc3",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputs = $input.all();\n\nlet slack_user_id;\nlet canvas_user_id;\nlet student_name;\nlet email;\n\nfor (const item of inputs) {\n  const data = item.json;\n\n  // slack info\n  if (typeof data?.user?.id === 'string') {\n    slack_user_id = data.user.id;\n  }\n\n  // canvas info\n  if (typeof data.id === 'number' && data.root_account) {\n    canvas_user_id = data.id;\n    student_name = data.name;\n    email = data.email || data.login_id;\n  }\n}\n\nif (!slack_user_id || !canvas_user_id || !student_name) {\n  throw new Error(\"Missing required data from Slack or Canvas input.\");\n}\n\n// profile\nconst profile = {\n  student_name,\n  slack_user_id,\n  canvas_user_id,\n  email,\n};\n\nreturn {\n  json: profile\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        780
+      ],
+      "id": "4fcb6156-99cc-4773-92dc-681b5e951a7d",
+      "name": "Student Profile"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "user.real_name",
+              "field2": "name"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -300,
+        780
+      ],
+      "id": "1c00187e-a485-417e-96b2-7047250d6835",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "url": "https://canvas.instructure.com/api/v1/courses/12164693/users?per_page=25",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 7~XQZ7TnEZXRrufAzTfvM2X99W6cmwRu9CJMM4TntXvA7LBF96nWB6PFycvLuKJHwc"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -520,
+        860
+      ],
+      "id": "b1f72062-98fe-4a37-b61c-66e15eb9cef5",
+      "name": "All Student Info"
+    },
+    {
+      "parameters": {
+        "url": "https://slack.com/api/users.info",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "=user",
+              "value": "={{ $json.slack_user_id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer xoxb-2239156759220-9239599433300-vgLgeNJyKSMCoVFegyNdRjlL"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -520,
+        680
+      ],
+      "id": "591997c8-9f9f-4f99-868c-07e8037910ab",
+      "name": "Slack API"
+    },
+    {
+      "parameters": {
+        "jsCode": "// get data from Slack trigger event\nconst slackEvent = $input.first().json;\n\n// get info\nconst slack_user_id = slackEvent.user;\nconst message_text = slackEvent.text;\nconst timestamp = slackEvent.ts;\n\n// in case missing\nif (!slack_user_id) {\n  throw new Error('Missing Slack user ID');\n}\n\nif (!message_text || message_text.trim() === '') {\n  throw new Error('Empty message received');\n}\n\n// workflow variables\nreturn {\n  json: {\n    slack_user_id: slack_user_id,\n    message_text: message_text.trim(),\n    timestamp: timestamp,\n    \n    // placeholders for data to be filled by subsequent nodes\n    slack_display_name: null,\n    slack_real_name: null,\n    canvas_user_id: null,\n    student_name: null,\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -780,
+        780
+      ],
+      "id": "5f2a7267-62c3-473b-855f-c8ef367cc7b6",
+      "name": "Process Input"
+    },
+    {
+      "parameters": {
+        "jsCode": "const profileNode   = $('Student Profile').first().json;\nconst payloadNode   = $('Merge Arrays').first().json;\nconst aiNode        = $('Learning Advisor').first().json;\n\nconst canvas_student_id = profileNode.canvas_user_id;\nconst student_name = profileNode.student_name;\nconst strengths = payloadNode.current_performance.strengths || [];\nconst weaknesses = payloadNode.current_performance.weaknesses || [];\nconst ai_output = aiNode.output;\n\nreturn [{\n  json: {\n    canvas_student_id,\n    student_name,\n    updated_at: new Date().toISOString(),\n    ai_output,\n    strengths,\n    weaknesses\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        2800
+      ],
+      "id": "8b50c6c3-c52f-4daa-8808-e6e6362797f5",
+      "name": "Get Info for Table",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $(\"Slack Trigger\").all()[0].json.user }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -380,
+        2360
+      ],
+      "id": "6b073833-c7d4-4d34-9dd7-c6e04752fbfc",
+      "name": "Send message",
+      "webhookId": "b2587610-0f6f-4aac-9c62-f17faff112de",
+      "credentials": {
+        "slackApi": {
+          "id": "gsnJXXTZzjUyf7lJ",
+          "name": "Slack account 13"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const merged = items\n  .map(item => item.json)      \n  .reduce((acc, obj) => ({      \n    ...acc,\n    ...obj\n  }), {});\n\nreturn [{ json: merged }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        2420
+      ],
+      "id": "38c63770-4af7-45dc-8d22-aa2ac9d9acd6",
+      "name": "Merge Arrays"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        40,
+        2000
+      ],
+      "id": "9ab8aa27-7e5d-4eca-9654-58338f62490f",
+      "name": "Data+Resources"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "student",
+          "mode": "list",
+          "cachedResultName": "student"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_timestamp": "={{ $now}}",
+            "student_name": "={{ $json.student_name }}",
+            "canvas_student_id": "={{ $json.canvas_student_id }}",
+            "ai_output": "={{$json[\"ai_output\"]}}",
+            "topic_strengths": "={{ $json.strengths }}",
+            "topic_weaknesses": "={{ $json.weaknesses }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "student_name",
+              "displayName": "student_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "canvas_student_id",
+              "displayName": "canvas_student_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "session_timestamp",
+              "displayName": "session_timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ai_output",
+              "displayName": "ai_output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "topic_strengths",
+              "displayName": "topic_strengths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "topic_weaknesses",
+              "displayName": "topic_weaknesses",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -140,
+        2800
+      ],
+      "id": "0dc46938-e468-47fd-bc16-e4433bfc37fa",
+      "name": "Feedback Table",
+      "executeOnce": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Kv3RR41CXjcroEz",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "bihWuG9D9KUFUmSU",
+          "mode": "list",
+          "cachedResultName": "Resources"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -220,
+        2100
+      ],
+      "id": "9634d197-6526-4928-9db9-97e69c0eb367",
+      "name": "Resources Search"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { student_name, canvas_user_id, records = [] } = items[0].json;\n\n// output list\nconst output = [];\n\noutput.push({\n  json: {\n    student_name,\n    canvas_user_id\n  }\n});\n\nfor (const rec of records) {\n  output.push({ json: rec });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1320,
+        2040
+      ],
+      "id": "53c94d09-8150-445f-838e-bcc0a2c2c5d9",
+      "name": "Flatten Array"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"student_name\": \"Sareena Parikh\",\n  \"canvas_user_id\": 117926003,\n  \"records\": [\n    {\n      \"exam_type\": \"csa\",\n      \"domain\": 5,\n      \"assignment\": \"Tables & Schema Knowledge Sync\",\n      \"percentage\": 75,\n      \"late\": false,\n      \"missing\": false\n    },\n    {\n      \"exam_type\": \"csa\",\n      \"domain\": 5,\n      \"assignment\": \"Handling Data Inputs and Errors in Systems Knowledge Sync\",\n      \"percentage\": 67,\n      \"late\": false,\n      \"missing\": false\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        1700
+      ],
+      "id": "d745e3fe-fd39-43ad-af79-4393840feac0",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -100,
+        1620
+      ],
+      "id": "00028eaf-f36b-409c-867b-68a7683dc00e",
+      "name": "Mapped Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "13ff9d52-d5b3-4c70-8e5d-a62ba416ccb0",
+              "leftValue": "={{ $json.unknowns }}",
+              "rightValue": "=0",
+              "operator": {
+                "type": "array",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -860,
+        1620
+      ],
+      "id": "40c75199-89e9-4c11-b902-dbb64492c2d2",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// unpack incoming JSON\nconst {\n  student_name,\n  canvas_user_id,\n  syncs = [],\n} = items[0].json;\n\n// keyword maps\nconst keywordMap = {\n  cad: {\n    1: [\"design\",\"create\",\"application\",\"development\",\"planning\",\"architecture\"],\n    2: [\"ui\",\"interface\",\"user\",\"form\",\"widget\",\"portal\",\"mobile\",\"policy\"],\n    3: [\"security\",\"access\",\"roles\",\"permissions\",\"acl\",\"authentication\"],\n    4: [\"automation\",\"workflow\",\"business rules\",\"script\",\"flow\",\"logic\"],\n    5: [\"data\",\"external\",\"integration\",\"import\",\"export\",\"web service\"],\n    6: [\"management\",\"deployment\",\"update set\",\"version\",\"maintenance\"]\n  },\n  csa: {\n    1: [\"platform\",\"navigation\",\"overview\",\"basics\",\"fundamentals\"],\n    2: [\"configuration\",\"instance\",\"setup\",\"customization\"],\n    3: [\"collaboration\",\"knowledge\",\"service catalog\",\"portal\",\"catalog\"],\n    4: [\"self service\",\"automation\",\"workflow\",\"request\",\"business rules\",\"flow\",\"logic\"],\n    5: [\"database\",\"security\",\"tables\",\"fields\",\"users\",\"roles\",\"schema\",\"data\",\"inputs\",\"errors\"],\n    6: [\"migration\",\"integration\",\"import\",\"transform\"]\n  }\n};\n\n// normalize helper\nfunction normalize(text) {\n  return text\n    .toLowerCase()\n    .replace(/[^\\w\\s]/g, \"\")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\n// 1) decide CAD vs CSA\nlet scores = { cad: 0, csa: 0 };\nfor (const { assignment } of syncs) {\n  const t = normalize(assignment);\n  for (const type of [\"cad\", \"csa\"]) {\n    for (const kw of Object.values(keywordMap[type]).flat()) {\n      if (t.includes(kw)) scores[type]++;\n    }\n  }\n}\nconst examType = scores.csa >= scores.cad ? \"csa\" : \"cad\";\n\n// 2) rule‐based scoring\nconst threshold = 2;\nconst confident = {};\nconst unknowns = [];\n\nfor (const { assignment } of syncs) {\n  const t = normalize(assignment);\n  let best = { domain: 1, score: 0 };\n  for (const [domain, kws] of Object.entries(keywordMap[examType])) {\n    const sc = kws.reduce((sum, kw) => sum + (t.includes(kw) ? 1 : 0), 0);\n    if (sc > best.score) best = { domain: Number(domain), score: sc };\n  }\n  if (best.score >= threshold) {\n    confident[assignment] = best.domain;\n  } else {\n    unknowns.push(assignment);\n  }\n}\n\n// 3) build final mappings (unknowns default to 1)\nconst finalMappings = {};\nfor (const { assignment } of syncs) {\n  finalMappings[assignment] =\n    confident[assignment] !== undefined\n      ? confident[assignment]\n      : 1;  // default if rule didn't catch it\n}\n\n// 4) prepare SQL records, now including percentage/late/missing\nconst records = syncs.map(({ assignment, percentage, late, missing }) => ({\n  exam_type: examType,\n  domain: finalMappings[assignment],\n  assignment,\n  percentage,\n  late,\n  missing\n}));\n\n// 5) output only the requested fields\nitems[0].json = {\n  student_name,\n  canvas_user_id,\n  records\n};\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1100,
+        1620
+      ],
+      "id": "eb3e8584-3899-4338-b605-c845e2f6e32a",
+      "name": "Mapper"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -580,
+        1700
+      ],
+      "id": "09de6445-2205-4505-bffa-0133a0096d48",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Ohq66BMUnRV2fs96",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Here is the exam breakdown",
+        "jsCode": "const blueprints = {\n  cad: [\n    { domain: 1, name: \"Designing and Creating an Application\", percent: 20 },\n    { domain: 2, name: \"Application User Interface\",           percent: 20 },\n    { domain: 3, name: \"Security and Restricting Access\",      percent: 20 },\n    { domain: 4, name: \"Application Automation\",               percent: 20 },\n    { domain: 5, name: \"Working with External Data\",           percent: 10 },\n    { domain: 6, name: \"Managing Applications\",                percent: 10 },\n  ],\n  csa: [\n    { domain: 1, name: \"Platform Overview and Navigation\",      percent: 6  },\n    { domain: 2, name: \"Instance Configuration\",                percent: 10 },\n    { domain: 3, name: \"Configuring Applications for Collaboration\", percent: 19.5 },\n    { domain: 4, name: \"Self Service & Automation\",             percent: 19.5 },\n    { domain: 5, name: \"Database Management and Platform Security\", percent: 30 },\n    { domain: 6, name: \"Data Migration and Integration\",         percent: 15 },\n  ],\n};"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.3,
+      "position": [
+        -440,
+        1700
+      ],
+      "id": "efa52951-5156-4282-b549-452e6e35517d",
+      "name": "Code Tool"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\"You are given a JSON input with the following keys:\n- assignments: an array of assignment records\n- examType: either 'CSA' or 'CAD'\n- blueprintDomains: the blueprint sections for this exam\nHere is the data:\n{{ $json.response }}\n\nasync function mapAssignmentsWithOpenAI(assignments, blueprintDomains, examType) {\n  const fullList = assignments.map(a => ({\n    assignment: a.assignment,\n    percentage: a.percentage,\n    late:       a.late,\n    missing:    a.missing,\n    domain:     a.domain ?? null\n  }));\n  const unknowns = fullList.filter(a => a.domain === null).map(a => a.assignment);\n  const blueprintList = blueprintDomains.map(d => `${d.domain}. ${d.name} (${d.percent}%)`).join('\\n');\n\n  const prompt = `We have this batch for the \"${examType.toUpperCase()}\" exam and these domains:\n\n${examType.toUpperCase()} DOMAINS:\n${blueprintList}\n\nHere are all the assignments:\n${fullList.map(a =>\n    `- \"${a.assignment}\": percentage=${a.percentage}, late=${a.late}, missing=${a.missing}` +\n    (a.domain !== null ? `, domain=${a.domain}` : `, domain=UNKNOWN`)\n  ).join('\\n')}\n\nUNKNOWN ASSIGNMENTS:\n${unknowns.map(u => `- \"${u}\"`).join('\\n')}\n\nReturn exactly this JSON structure (no extra prose):\n{\n  \"mappings\": [\n    {\n      \"assignment\": \"Assignment Name\",\n      \"domain\": <domain_number>,\n      \"percentage\": <percentage>,\n      \"late\": <true|false>,\n      \"missing\": <true|false>\n    },\n    …\n  ]\n}`;\n  \n  const system = {\n    role: 'system',\n    content: `\nYou are an expert in the ServiceNow certification curriculum.\nOUTPUT ONLY valid JSON with a top-level \"mappings\" array, no explanations.`\n  };\n\n  const payload = {\n    model: 'gpt-4',\n    messages: [system, {role:'user',content:prompt}],\n    temperature: 0.0,\n    max_tokens: 1500\n  };\n\n  console.log('OUTGOING PAYLOAD:', JSON.stringify(payload, null,2));\n  const response = await fetch('https://api.openai.com/v1/chat/completions', {\n    method: 'POST',\n    headers: {\n      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,\n      'Content-Type': 'application/json'\n    },\n    body: JSON.stringify(payload)\n  });\n  const data = await response.json();\n  console.log('RAW MODEL RESP:', data.choices[0].message.content);\n\n  const resultArray = JSON.parse(data.choices[0].message.content).mappings;\n  const mappings = {};\n  resultArray.forEach(item => mappings[item.assignment] = item.domain);\n  return { examType, mappings };\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -620,
+        1520
+      ],
+      "id": "68dff34e-890d-480a-aa33-05eaf0b6b400",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an intelligent Learning Advisor in Slack. You’ll receive a JSON array with two entries:\n\n1. A student object:\n   • student_name: full name  \n   • current_performance:\n     – strengths: []  \n     – weaknesses: []  \n   • historical_context: { previous_sessions, last_interaction, grade_progression, persistent_weaknesses, improvement_areas }  \n   • session_timestamp: ISO datetime  \n2. A resources array of objects:\n   – title, url, snippet  \n\nYour job is to emit **one** Slack-style message that:\n\n# Hey <student_name>! 🌟  \nSummarize current performance and historical context in 2-3 sentences.\n\n## Weaknesses  \n• List each weakness as a bullet.\n\n## Resources for Weaknesses  \n• Render **all** resource links whose title or snippet mentions any weakness as standard bullets:  \n  * `[Title](URL)`\n\n## Study Actions  \n• 1–2 clear, encouraging next steps (no more than three bullets).\n\n• Close with an encouraging line (“You’ve got this…”)._\n\n---\n\n**Formatting Notes (Slack Markdown):**  \n---\nUse **this exact template** for the Slack message—fill in only the bracketed parts, and do not add/remove any other lines:\n\n*Hey [student_name]! :star2:*\n[2-3 current performance and historical context summary]\n\n*Weaknesses*\n• [weakness1]\n• [weakness2]\n• [weakness3]\n…  \n\n*Resources for Weaknesses*\n• [Title 1](URL1): [snippet1…]  \n• [Title 2](URL2): [snippet2…]  \n• [Title 3](URL3): [snippet3…]  \n…  \n\n*Study Actions*\n• Suggest action 1 based on performance \n• Suggest action 2 based on weaknesses\n• Suggest a third action to improve\n\n_[Closing encouragement, e.g. “You’ve got this, [student_name]! :muscle::sparkles:”]_\n\nOutput only the final Slack-formatted message.\n\nHere is the JSON input:  \n{{ JSON.stringify($json, null, 2) }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        2360
+      ],
+      "id": "3f828e89-1d09-43b9-b115-1154f262ba63",
+      "name": "Learning Advisor"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allSessions = $input.all().map(i => i.json);\n\n// filter placeholder entries\nconst validSessions = allSessions.filter(s => s.session_timestamp);\n\n// de-duplicate by session_timestamp\nconst seen = new Set();\nconst uniqueSessions = [];\n\nfor (const session of validSessions) {\n  const key = session.session_timestamp;\n  if (!seen.has(key)) {\n    seen.add(key);\n    uniqueSessions.push(session);\n  }\n}\n\n// Separate current + historical data\nconst currentData = uniqueSessions[0] || {};\nconst historicalData = uniqueSessions.slice(1);\n\n// Add strengths and weaknesses from the second input (merged input usually)\nconst mergedInput = allSessions.find(s => s.strengths && s.weaknesses) || {};\ncurrentData.strengths = currentData.strengths || mergedInput.strengths || [];\ncurrentData.weaknesses = currentData.weaknesses || mergedInput.weaknesses || [];\n\nreturn [{\n  json: {\n    student_name: mergedInput.student_name || null,\n    current_performance: currentData,\n    historical_context: {\n      previous_sessions: historicalData.length,\n      last_interaction: historicalData[0]?.session_timestamp || 'First time',\n      grade_progression: historicalData.map(h => ({\n        date: h.session_timestamp,\n        strengths: h.topic_strengths || [],\n        weaknesses: h.topic_weaknesses || []\n      })),\n      persistent_weaknesses: findPersistentWeaknesses(historicalData),\n      improvement_areas: findImprovedAreas(historicalData)\n    }\n  }\n}];\n\nfunction findPersistentWeaknesses(history) {\n  const weaknessCount = {};\n  history.forEach(session => {\n    session.topic_weaknesses?.forEach(weakness => {\n      weaknessCount[weakness] = (weaknessCount[weakness] || 0) + 1;\n    });\n  });\n  return Object.entries(weaknessCount)\n    .filter(([_, count]) => count >= 2)\n    .map(([topic, count]) => ({ topic, frequency: count }));\n}\n\nfunction findImprovedAreas(history) {\n  if (history.length < 2) return [];\n  const [recent, older] = history;\n  const recentWeak = new Set(recent.topic_weaknesses || []);\n  const olderWeak = new Set(older.topic_weaknesses || []);\n  return [...olderWeak].filter(w => !recentWeak.has(w));\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        1980
+      ],
+      "id": "f28d864b-29be-4bc1-a1b3-12cd5782868f",
+      "name": "Get Data"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *\nFROM student\nWHERE canvas_student_id = {{ $('Student Profile').first().json.canvas_user_id }}\nORDER BY session_timestamp DESC\nLIMIT 5;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1160,
+        1960
+      ],
+      "id": "db43c098-b57e-4025-bc7c-7054ab948ca9",
+      "name": "Get History",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "postgres": {
+          "id": "1Kv3RR41CXjcroEz",
+          "name": "Postgres account 2"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -700,
+        2100
+      ],
+      "id": "cae353ad-e5ba-4a1c-a2a4-6131b54f707d",
+      "name": "Current+History"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = items;\n\nif (!rows || rows.length === 0 || Object.keys(rows[0].json || {}).length === 0) {\n  return [{\n    json: {\n      history: [],\n      note: \"No prior history found for this student.\",\n      session_timestamp: new Date().toISOString()\n    }\n  }];\n}\n\nreturn rows;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        1960
+      ],
+      "id": "d5004a81-91a6-4bbc-a5e9-3087871dc662",
+      "name": "First Entry"
+    },
+    {
+      "parameters": {
+        "jsCode": "const canvas_user_id = $node[\"Student Profile\"].json.canvas_user_id;\nconst student_name = $node[\"Student Profile\"].json.student_name;\n\nconst grouped = {};\n\nfor (const item of items) {\n  const data = item.json;\n\n  // make sure it's the correct submission\n  if (data.name != String(canvas_user_id)) continue;\n  if (!data.assignment.toLowerCase().includes(\"knowledge sync\")) continue;\n\n  // skip if grade or points are invalid\n  const grade = parseFloat(data.entered_grade);\n  const points = parseFloat(data.points_possible);\n\n  if (isNaN(grade) || isNaN(points) || points <= 0) continue;\n\n  const percentage = (grade / points) * 100;\n\n  const submission = {\n    assignment: data.assignment,\n    percentage: Math.round(percentage),\n    late: data.late,\n    missing: data.missing\n  };\n\n  // group by student_name\n  if (!grouped[student_name]) {\n    grouped[student_name] = [];\n  }\n\n  grouped[student_name].push(submission);\n}\n\n// Final output structure\nconst result = [];\n\nfor (const name in grouped) {\n  result.push({\n    json: {\n      student_name: name,\n      canvas_user_id,\n      syncs: grouped[name]\n    }\n  });\n}\n\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        60,
+        1100
+      ],
+      "id": "dc6d9369-cf26-4b0f-9331-4e129de8567a",
+      "name": "Filter Info"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "id",
+              "field2": "assignment_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -320,
+        1100
+      ],
+      "id": "a141c21c-aff1-4021-bfcd-b196a4c4f333",
+      "name": "Merge Submissions to Canvas ID"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3c2acc0f-d101-406e-b919-293564ecc238",
+              "name": "=name",
+              "value": "={{ $json.user_id }}",
+              "type": "string"
+            },
+            {
+              "id": "e93bcf7f-c5df-4d80-8edb-3089f75f0063",
+              "name": "assignment",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "cdaabb43-081f-4c1a-b216-f27da3e9837b",
+              "name": "entered_grade",
+              "value": "={{ $json.entered_grade }}",
+              "type": "string"
+            },
+            {
+              "id": "241369b0-7496-4541-a54e-03c62029f601",
+              "name": "points_possible",
+              "value": "={{ $json.points_possible }}",
+              "type": "string"
+            },
+            {
+              "id": "efe47aef-f59e-4fb8-93e6-23104df69ed7",
+              "name": "missing",
+              "value": "={{ $json.missing }}",
+              "type": "boolean"
+            },
+            {
+              "id": "0fd6b968-b2e0-4e83-9fb6-4c5b047a6522",
+              "name": "late",
+              "value": "={{ $json.late }}",
+              "type": "boolean"
+            },
+            {
+              "id": "63447f9e-46cf-4cb4-b06b-8316ae39b1ce",
+              "name": "points_deducted",
+              "value": "={{ $json.points_deducted }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -140,
+        1100
+      ],
+      "id": "d61100a5-2500-4812-a898-6cf102fe9286",
+      "name": "Filter Output Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const student_name = $('Filter Info').first().json.student_name;\nconst syncs = $('Filter Info').first().json.syncs;\n\nconst strengths = [];\nconst weaknesses = [];\n\nfor (const sync of syncs) {\n  const topic = sync.assignment;\n  const score = sync.percentage;\n\n  if (score >= 80) {\n    strengths.push(topic);\n  } else {\n    weaknesses.push(topic);\n  }\n}\n\nreturn [{\n  json: {\n    student_name,\n    syncs,\n    strengths,\n    weaknesses\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1160,
+        2120
+      ],
+      "id": "7bc02599-009b-4acc-ad67-b56ca2ddd0d9",
+      "name": "Info to Save"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -780,
+        2520
+      ],
+      "id": "92de8e46-1b7e-4a0a-8ae0-81da0690dc4b",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "Ohq66BMUnRV2fs96",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://canvas.instructure.com/api/v1/courses/12164693/assignments/{{ $json.id }}/submissions/{{ $node[\"Student Profile\"].json.canvas_user_id }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "assignment_ids[]",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 7~8fhKH6WVRBX6ZhmEKG99RyAVTTuNQvUZPmvW9m7RGHhwwLCnxWQtt74tQCU7vxDU"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -340,
+        1260
+      ],
+      "id": "0daa296f-046a-4aa3-8162-36e58f3a743a",
+      "name": "Submissions"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -660,
+        1200
+      ],
+      "id": "b3101808-6ab8-4f77-8317-d85ff0a48de3",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "url": "https://canvas.instructure.com/api/v1/courses/12164693/assignments?per_page=50",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 7~XQZ7TnEZXRrufAzTfvM2X99W6cmwRu9CJMM4TntXvA7LBF96nWB6PFycvLuKJHwc"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -980,
+        1080
+      ],
+      "id": "bad388c1-505e-4428-a93b-6904d5110875",
+      "name": "All Assignments"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Process Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Student Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Student Info": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Slack API": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Input": {
+      "main": [
+        [
+          {
+            "node": "All Student Info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Student Profile": {
+      "main": [
+        [
+          {
+            "node": "All Assignments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Arrays": {
+      "main": [
+        [
+          {
+            "node": "Learning Advisor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data+Resources": {
+      "main": [
+        [
+          {
+            "node": "Merge Arrays",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Info for Table": {
+      "main": [
+        [
+          {
+            "node": "Feedback Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resources Search": {
+      "main": [
+        [
+          {
+            "node": "Data+Resources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Flatten Array": {
+      "main": [
+        [
+          {
+            "node": "Get History",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Info to Save",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapped Merge": {
+      "main": [
+        [
+          {
+            "node": "Flatten Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mapped Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Mapper": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Mapped Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Learning Advisor": {
+      "main": [
+        [
+          {
+            "node": "Get Info for Table",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data": {
+      "main": [
+        [
+          {
+            "node": "Data+Resources",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Resources Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get History": {
+      "main": [
+        [
+          {
+            "node": "First Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Current+History": {
+      "main": [
+        [
+          {
+            "node": "Get Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First Entry": {
+      "main": [
+        [
+          {
+            "node": "Current+History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Info": {
+      "main": [
+        [
+          {
+            "node": "Mapper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Submissions to Canvas ID": {
+      "main": [
+        [
+          {
+            "node": "Filter Output Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Output Fields": {
+      "main": [
+        [
+          {
+            "node": "Filter Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info to Save": {
+      "main": [
+        [
+          {
+            "node": "Current+History",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Learning Advisor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submissions": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Merge Submissions to Canvas ID",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Submissions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Assignments": {
+      "main": [
+        [
+          {
+            "node": "Merge Submissions to Canvas ID",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5b47d87d-4417-402b-b477-9087c8826727",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2182484847e65c437185ddb7b1b2cacb8bfb57ecf58bb42b5b0aa0b05b40884b"
+  },
+  "id": "oGNL7BtjNhyfZtDC",
+  "tags": []
+}
